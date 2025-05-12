@@ -1,24 +1,21 @@
-
-// Оновлення кольорів блоків у реальному часі
-document.getElementById('color1').addEventListener('input', function() {
+ // Оновлення кольорів блоків у реальному часі
+ document.getElementById('color1').addEventListener('input', function () {
     document.getElementById('block1').style.background = this.value;
 });
 
-document.getElementById('color2').addEventListener('input', function() {
+document.getElementById('color2').addEventListener('input', function () {
     document.getElementById('block2').style.background = this.value;
 });
 
-document.getElementById('color3').addEventListener('input', function() {
+document.getElementById('color3').addEventListener('input', function () {
     document.getElementById('block3').style.background = this.value;
 });
 
 function downloadElement() {
-    // Отримуємо кольори блоків
     let color1 = document.getElementById('block1').style.background;
     let color2 = document.getElementById('block2').style.background;
     let color3 = document.getElementById('block3').style.background;
-    // Створюємо HTML-код для збереження
-    
+
     let content = `
         <!DOCTYPE html>
         <html lang="uk">
@@ -52,52 +49,49 @@ function downloadElement() {
         </html>
     `;
 
-    // Створюємо Blob-файл
     let blob = new Blob([content], { type: 'text/html' });
-    // Створюємо посилання для завантаження
     let a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = 'унікальний_елемент.html';
-    // Імітуємо клік для завантаження
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    function insertSavedElement() {
-        const fileInput = document.getElementById('fileInput');
-        const container = document.getElementById('importedElementContainer');
-    
-        if (!fileInput.files || fileInput.files.length === 0) {
-            alert('Будь ласка, виберіть файл.');
-            return;
-        }
-    
-        const file = fileInput.files[0];
-    
-        if (file.type !== "text/html") {
-            alert('Файл повинен бути у форматі HTML.');
-            return;
-        }
-    
-        const reader = new FileReader();
-    
-        reader.onload = function(event) {
-            const htmlContent = event.target.result;
-    
-            // Тимчасово створюємо елемент, щоб "витягнути" блоки
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = htmlContent;
-    
-            // Знаходимо елемент з класом .container
-            const savedContainer = tempDiv.querySelector('.container-1');
-    
-            if (savedContainer) {
-                container.innerHTML = ''; // очищаємо попередній імпорт
-                container.appendChild(savedContainer);
-            } else {
-                alert('Не знайдено дійсного елемента у файлі.');
-            }
-        };
-    
-        reader.readAsText(file);
+}
+
+function insertSavedElement() {
+    const fileInput = document.getElementById('fileInput');
+    const container = document.getElementById('importedElementContainer');
+    if (!fileInput.files || fileInput.files.length === 0) {
+        alert('Будь ласка, виберіть файл.');
+        return;
     }
+
+    const file = fileInput.files[0];
+
+    if (file.type !== "text/html") {
+        alert('Файл повинен бути у форматі HTML.');
+        return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = function (event) {
+        const htmlContent = event.target.result;
+
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = htmlContent;
+
+        const savedBlocks = tempDiv.querySelectorAll('.block');
+
+        if (savedBlocks.length > 0) {
+            container.innerHTML = '';
+            savedBlocks.forEach(block => {
+                container.appendChild(block.cloneNode(true));
+            });
+        } else {
+            alert('Не знайдено жодного блоку для вставки.');
+        }
+    };
+
+    reader.readAsText(file);
 }
